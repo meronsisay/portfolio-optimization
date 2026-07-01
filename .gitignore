@@ -1,0 +1,96 @@
+# Virtual Environment
+venv/
+env/
+envs/
+.env
+.venv
+myenv/
+pyenv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+*.pyd
+
+# Jupyter Notebooks - Exclude checkpoint files and large outputs
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+
+# Track notebooks but strip outputs before committing
+# Don't track notebooks with large outputs/data
+notebooks/*_with_outputs.ipynb
+
+# Data files - Keep processed data structure but exclude actual data
+data/raw/
+data/processed/*.csv
+data/processed/*.parquet
+data/processed/*.h5
+data/processed/*.hdf5
+*.csv
+*.parquet
+*.h5
+*.hdf5
+*.feather
+*.pickle
+
+# Model files
+models/
+*.h5
+*.pkl
+*.pth
+*.pt
+*.joblib
+*.onnx
+*.sav
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.code-workspace
+
+# Logs and outputs
+logs/
+outputs/
+reports/
+*.log
+*.out
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.pytest_cache/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.envrc
+
+# OS specific
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+tmp/
+temp/
+*.tmp
