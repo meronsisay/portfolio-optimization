@@ -14,10 +14,12 @@ portfolio-optimization/
 ├── .github/workflows/unittests.yml # CI/CD pipeline
 ├── data/processed/ # Cleaned data files
 ├── notebooks/
-│ └── eda_and_preprocessing.ipynb # Task 1: EDA
+│ ├── eda_and_preprocessing.ipynb # EDA
+│ └── model_training.ipynb #  Forecasting
 ├── src/
 │ ├── init.py
-│ └── data_processing.py # Core utilities
+│ ├── data_processing.py # Core utilities
+│ └── forecasting.py # ARIMA & LSTM models
 ├── tests/
 │ └── test_data_processing.py # Unit tests
 ├── requirements.txt
@@ -43,7 +45,7 @@ portfolio-optimization/
 
 ---
 
-##  Data Preprocessing & EDA (Complete)
+##  Data Preprocessing & EDA 
 
 - Fetched data from yfinance
 - Cleaned and validated data (no missing values)
@@ -71,6 +73,51 @@ portfolio-optimization/
 
 ---
 
+## Time Series Forecasting
+
+### Models Implemented
+
+| Model | Parameters | Description |
+|-------|------------|-------------|
+| **ARIMA** | (0, 0, 0) | Random walk model - no autocorrelation in returns |
+| **LSTM** | 2 layers, 32 units | Stacked deep learning model with dropout |
+
+### Key Results (TSLA Price Forecasts)
+
+| Metric | ARIMA | LSTM |
+|--------|-------|------|
+| **MAE** | $8.73 | $8.76 |
+| **RMSE** | $11.69 | $11.72 |
+| **MAPE** | 2.78% | 2.78% |
+| **Directional Accuracy** | 49.83% | 49.65% |
+
+### Key Insights
+
+1. **ARIMA(0,0,0) Confirms Random Walk**
+   - Tesla's returns show no autocorrelation
+   - Past prices do NOT predict future prices
+   - Consistent with Efficient Market Hypothesis
+
+2. **LSTM Learned Successfully**
+   - Loss reduced by 76.5% during training
+   - Validation loss decreased (no overfitting)
+   - Complex DL matches simpler ARIMA
+
+3. **Low MAPE (2.78%)**
+   - Predictions track actual prices accurately
+   - Structural stability confirmed
+
+4. **Directional Accuracy ~50%**
+   - Expected for random walk
+   - No predictive edge from historical data alone
+
+### Price Reconstruction
+
+- Models forecast **returns** (stationary), then convert to **prices**
+- Formula: `Price[t] = Price[t-1] × (1 + Return[t])`
+- Final evaluation on dollar prices for business relevance
+
+
 ## Environment Setup
 
 ### Prerequisites
@@ -84,7 +131,7 @@ Follow these step-by-step instructions to prepare your local development environ
 #### 1. Clone the Repository
 
 ```bash
-git clone [https://github.com/meronsisay/portfolio-optimization.git](https://github.com/meronsisay/portfolio-optimization.git)
+git clone https://github.com/meronsisay/portfolio-optimization.git
 cd portfolio-optimization
 
 # Create the virtual environment using Python 3.11
@@ -104,4 +151,4 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 # running jupyter notebook
-jupyter notebook notebooks/01_data_preprocessing_eda.ipynb
+jupyter notebook notebooks/eda_and_preprocessing.ipynb
