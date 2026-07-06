@@ -186,6 +186,71 @@ Using the best-performing model from Task 2 (**ARIMA(0,0,0)**), refit on the ful
 
 
 ---
+## Portfolio Optimization
+
+Using Modern Portfolio Theory (MPT), TSLA's forecasted return (from Task 3's ARIMA
+12-month projection) was combined with BND and SPY's historical average returns to
+construct an optimized three-asset portfolio.
+
+##  Expected Returns & Risk
+
+### Expected Returns (Annualized)
+
+| Asset | Source | Expected Return |
+|---|---|---|
+| TSLA | ARIMA Forecast (12-month) | 57.24% |
+| SPY | Historical Average | 14.43% |
+| BND | Historical Average | 2.03% |
+
+### Covariance Matrix (Annualized)
+
+| | TSLA | BND | SPY |
+|---|---|---|---|
+| **TSLA** | 0.326926 | 0.001789 | 0.049820 |
+| **BND** | 0.001789 | 0.002822 | 0.001086 |
+| **SPY** | 0.049820 | 0.001086 | 0.031169 |
+
+**Key Observations:**
+- TSLA carries by far the highest risk (variance 0.327 → ~57.2% annual volatility) — coincidentally close in magnitude to its expected return, underscoring how much uncertainty accompanies that upside.
+- BND is the lowest-risk asset (variance 0.003 → ~5.3% annual volatility).
+- Stock–bond covariances (TSLA↔BND: 0.0018, SPY↔BND: 0.0011) are very low relative to stock–stock covariance (TSLA↔SPY: 0.050) — meaningful diversification benefit from holding bonds alongside equities.
+
+###  Portfolio Comparison
+
+| Metric | Max Sharpe | Min Volatility |
+|---|---|---|
+| TSLA Weight | 15.25% | 0.00% |
+| BND Weight | 60.08% | 94.54% |
+| SPY Weight | 24.67% | 5.46% |
+| Expected Return | 13.50% | 2.70% |
+| Volatility | 12.21% | 5.22% |
+| Sharpe Ratio | 1.106 | 0.517 |
+
+### Recommended Portfolio: Maximum Sharpe Ratio (Tangency Portfolio)
+
+| Asset | Weight | Purpose |
+|---|---|---|
+| BND | 60.08% | Stability and income |
+| SPY | 24.67% | Broad market growth |
+| TSLA | 15.25% | High return potential |
+
+**Expected Performance**
+- Annual Return: **13.50%**
+- Annual Volatility: **12.21%**
+- Sharpe Ratio: **1.106**
+
+###  Why This Portfolio?
+
+| Reason | Explanation |
+|---|---|
+| Balanced | 15% TSLA captures upside exposure without concentrating the portfolio's risk |
+| Diversified | Combines equities (TSLA + SPY) with bonds (BND) across different risk profiles |
+| Risk-Adjusted | Sharpe Ratio of 1.106 (>1.0) indicates strong return per unit of risk taken |
+| Practical | A 15/60/25 split is realistic and implementable, not a corner-case allocation |
+
+**Note on TSLA's weight:** despite carrying the highest expected return input (57.24%) of the three assets, the optimizer allocated only 15.25% to TSLA rather than concentrating heavily in it. This is because TSLA's variance (0.327) and its correlation with SPY (0.919, from Task 1) mean that extra TSLA exposure adds risk faster than it adds diversification-adjusted return — the optimizer is correctly weighing TSLA's high *forecasted* return against its high *actual historical* volatility, rather than blindly maximizing return. This is a reassuring result given the very low reliability assigned to the 12-month TSLA forecast in Task 3: the portfolio construction step doesn't over-commit to a forecast that carries substantial uncertainty.
+
+
 
 ## Environment Setup
 
