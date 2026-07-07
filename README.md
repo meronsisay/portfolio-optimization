@@ -15,12 +15,16 @@ portfolio-optimization/
 ├── data/processed/ # Cleaned data files
 ├── notebooks/
 │ ├── eda_and_preprocessing.ipynb # EDA
-│ ├── model_training.ipynb #  Forecasting 
-│ └── future_forcasting.ipynb # Future horizon forecasting 
+│ ├── model_training.ipynb #  Forecasting
+│ ├── future_forcasting.ipynb # Future horizon forecasting
+│ ├── portfolio_optimization.ipynb # MPT portfolio optimization
+│ └── backtesting.ipynb # Strategy backtest vs. benchmark
 ├── src/
 │ ├── init.py
 │ ├── data_processing.py # Core utilities
-│ └── forecasting.py # ARIMA & LSTM models + future forecasting
+│ ├── forecasting.py # ARIMA & LSTM models + future forecasting
+│ ├── portfolio_optimization.py # PyPortfolioOpt-based MPT optimizer
+│ └── backtesting.py # Backtester vs. 60/40 benchmark
 ├── tests/
 │ └── test_data_processing.py # Unit tests
 ├── requirements.txt
@@ -63,7 +67,7 @@ portfolio-optimization/
 | SPY | +337% | ±1.11% | -33.72% | 0.818 |
 | BND | +24% | ±0.33% | -18.58% | 0.381 |
 
-**Correlation Matrix**:
+**Price Correlation Matrix** (Adj Close levels — inflated by shared upward trend, not a risk-modeling input):
 - TSLA ↔ SPY: 0.919 (Very Strong)
 - BND ↔ SPY: 0.656 (Moderate)
 - TSLA ↔ BND: 0.649 (Moderate)
@@ -213,7 +217,7 @@ construct an optimized three-asset portfolio.
 **Key Observations:**
 - TSLA carries by far the highest risk (variance 0.327 → ~57.2% annual volatility) — coincidentally close in magnitude to its expected return, underscoring how much uncertainty accompanies that upside.
 - BND is the lowest-risk asset (variance 0.003 → ~5.3% annual volatility).
-- Stock–bond covariances (TSLA↔BND: 0.0018, SPY↔BND: 0.0011) are very low relative to stock–stock covariance (TSLA↔SPY: 0.050) — meaningful diversification benefit from holding bonds alongside equities.
+- Stock–bond covariances (TSLA↔BND: 0.0018, SPY↔BND: 0.0011) are very low relative to stock–stock covariance (TSLA↔SPY: 0.050) — meaningful diversification benefit from holding bonds alongside equities. Note: the **return-based** TSLA↔SPY correlation implied by this matrix is ~0.49 — the 0.919 figure quoted above under EDA is a *price-level* correlation (inflated by both assets simply trending upward over 11 years) and is not the number that drives this optimization.
 
 ###  Portfolio Comparison
 
@@ -237,7 +241,7 @@ construct an optimized three-asset portfolio.
 **Expected Performance**
 - Annual Return: **13.50%**
 - Annual Volatility: **12.21%**
-- Sharpe Ratio: **1.106**
+- Sharpe Ratio: **1.106** *(0% risk-free rate assumption)*
 
 ###  Why This Portfolio?
 
@@ -248,9 +252,34 @@ construct an optimized three-asset portfolio.
 | Risk-Adjusted | Sharpe Ratio of 1.106 (>1.0) indicates strong return per unit of risk taken |
 | Practical | A 15/60/25 split is realistic and implementable, not a corner-case allocation |
 
-**Note on TSLA's weight:** despite carrying the highest expected return input (57.24%) of the three assets, the optimizer allocated only 15.25% to TSLA rather than concentrating heavily in it. This is because TSLA's variance (0.327) and its correlation with SPY (0.919, from Task 1) mean that extra TSLA exposure adds risk faster than it adds diversification-adjusted return — the optimizer is correctly weighing TSLA's high *forecasted* return against its high *actual historical* volatility, rather than blindly maximizing return. This is a reassuring result given the very low reliability assigned to the 12-month TSLA forecast in Task 3: the portfolio construction step doesn't over-commit to a forecast that carries substantial uncertainty.
+**Note on TSLA's weight:** despite carrying the highest expected return input (57.24%) of the three assets, the optimizer allocated only 15.25% to TSLA rather than concentrating heavily in it. TSLA's variance (0.327) is so large relative to its return that adding more TSLA increases portfolio risk faster than it improves risk-adjusted return — the optimizer is weighing the *forecasted* return against actual *historical* volatility rather than blindly maximizing return. Reassuring, given the "very low reliability" rating on the 12-month TSLA forecast above: the portfolio construction step doesn't over-commit to a forecast that carries substantial uncertainty.
 
+---
 
+## Strategy Backtesting
+
+The Max Sharpe portfolio (15% TSLA / 60% BND / 25% SPY) was simulated over the final 12 months of the dataset (**Jun 29, 2025 – Jun 29, 2026**) — data the models never trained on — and compared against a static **60% SPY / 40% BND** passive benchmark.
+
+### Performance Summary
+
+| Metric | Strategy (15/60/25) | Benchmark (60/40) |
+|---|---|---|
+| Total Return | 11.36% | 13.64% |
+| Annualized Volatility | 9.61% | 8.07% |
+| Sharpe Ratio *(0% rf)* | 1.19 | 1.71 |
+| Max Drawdown | -6.63% | -5.84% |
+
+*(Simulation assumes weights are held constant and implicitly rebalanced daily; no transaction costs modeled.)*
+
+### Did the Strategy Outperform?
+
+**No.** The MPT-optimized portfolio underperformed the simple passive benchmark on every metric — lower return, higher volatility, deeper drawdown. The main driver: TSLA's forecasted 57.24% annual return (the input that shaped the optimizer's allocation) did not materialize over the actual backtest window, and the position still carried its full historical volatility — a cost the optimizer paid for upside that didn't show up.
+
+### Viability & Limitations
+
+This single 12-month test doesn't invalidate the model-driven approach outright, but it's a clear caution: an optimizer is only as good as its return assumptions, and a forecast already flagged as "very low reliability" in Task 3 flowed directly into a real allocation decision here. Key limitations: one backtest year is too short to judge across market regimes, no rebalancing costs or taxes are modeled, and only three assets limits true diversification. Before any real deployment, this strategy would need capping TSLA's forecast-driven weight, testing over multiple historical windows, and modeling realistic trading frictions.
+
+---
 
 ## Environment Setup
 
